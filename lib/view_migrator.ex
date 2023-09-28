@@ -17,7 +17,7 @@ defmodule ViewMigrator do
     quote bind_quoted: [opts: opts] do
       use Ecto.Migration
       import ViewMigrator, 
-        only: [ create_view: 0, change_view: 0, change_with_view: 2 ]
+        only: [ create_view: 0, drop_view: 0, change_view: 0, change_with_view: 2 ]
 
       @view_directory Keyword.fetch!(opts, :view_directory)
       @view_name      Keyword.fetch!(opts, :view_name)
@@ -90,6 +90,22 @@ defmodule ViewMigrator do
 
       def down do
         drop_view(@view_name)
+      end
+    end
+  end
+
+  @doc """
+  Drops a view on `up` and recreates it from the current version on `down`
+  """
+  @spec drop_view() :: Macro.t()
+  defmacro drop_view() do
+    quote do
+      def up do
+        drop_view(@view_name)
+      end
+
+      def down do
+        execute_view(true, :down, @current_view_version, @view_directory)
       end
     end
   end
