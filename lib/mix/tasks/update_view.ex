@@ -1,10 +1,43 @@
 defmodule Mix.Tasks.UpdateView do
-  @moduledoc "The update_view mix task: `mix help update_view`"
+  @moduledoc """
+  Required option(s): 
+    --view-name <view_to_update>
+
+  Given a configured view, makes a copy of the highest version change file. The copy file name has its 
+  version bumped, a timestamp, and a user-supplied description. If the user's environment has an 
+  editor which supports opening a file given a file name and line number, the copy can 
+  be opened for immediate editing.
+
+  For example, if a config file contains an entry like this:
+  
+  ```
+  config :view_migrator,
+  views: 
+    %{
+      my_views: [view_name: "my_view", view_directory: "assets/views/my_view/"],
+    }
+
+  ```
+
+  and the `view_directory` contains these files: 
+
+  ```
+  1_20230928152344_initial_definition.sql
+  2_20230928160432_add_a_field.sql
+  ```
+
+
+  then supplying the option `--view-name my_view` will prompt the user for a description of the changes to the file.
+  Assuming user enters 'adds_another_field', then the contents of `2_20230928160432_add_a_field.sql` will
+  be copied into a new file, `3_<yyyyMMddHHmmss>_adds_another_field.sql` in the same directory. If the user's
+  environment is configured as needed, the user is  asked whether to begin editing the file immediately and opens
+  the system editor if so.
+  """
 
   use Mix.Task
   require IEx.Helpers
 
-  @shortdoc "TODO"
+  @shortdoc "Copies the contents of the latest version of a view (`--view-name <view_name>`)to a new file, bumping its version and letting a user describe it"
   @impl Mix.Task
   def run(args) do
     {parsed, _, _} = OptionParser.parse(args, strict: [view_name: :string])
